@@ -3,19 +3,25 @@ package handlers
 
 import "net/http"
 
-func CoreHandler(rw http.ResponseWriter, r *http.Request) {
-	rw.WriteHeader(http.StatusOK)
-	rw.Write([]byte("Hallo my little hacker!!!"))
+func BadHandler(rw http.ResponseWriter, r *http.Request) {
+	rw.WriteHeader(http.StatusBadRequest)
+	rw.Write([]byte("Hey! Motherfucker! You know you don't belong here! Request incorrect!"))
 }
 
 // Get a list with information on user orders
 func GetInfoHandler(rw http.ResponseWriter, r *http.Request) {
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte("This is Get Info Handler!"))
 }
 
-// Get a current ballance of points on user
-func GetCurrentBallanceHandler(rw http.ResponseWriter, r *http.Request) {
+// Get a current balance of points on user
+func GetCurrentBalanceHandler(rw http.ResponseWriter, r *http.Request) {
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte("This is Get Balance Handler!"))
 }
 
 // Get information for withdrawals user
 func GetWithdrawalsHandler(rw http.ResponseWriter, r *http.Request) {
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte("This is Get Withdraw Handler!"))
 }
