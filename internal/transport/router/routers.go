@@ -1,28 +1,29 @@
 package router
 
 import (
+	"github.com/BillyBones007/loyalty-service/internal/db"
 	"github.com/BillyBones007/loyalty-service/internal/transport/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func InitRouter() *chi.Mux {
+func InitRouter(storage db.Store) *chi.Mux {
+	h := handlers.Handler{Storage: storage}
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	// TODO: routers
-	r.Get("/", handlers.BadHandler)
-	r.Delete("/", handlers.BadHandler)
-	r.Put("/", handlers.BadHandler)
+	r.Get("/", h.BadHandler)
+	r.Delete("/", h.BadHandler)
+	r.Put("/", h.BadHandler)
 	r.Route("/api/user", func(r chi.Router) {
-		r.Post("/register", handlers.RegisterUserHandler)
-		r.Post("/login", handlers.AuthUserHandler)
-		r.Post("/orders", handlers.UploadNumberOrderHandler)
-		r.Post("/balance/withdraw", handlers.WithdrawPointsHandler)
-		r.Get("/orders", handlers.GetInfoHandler)
-		r.Get("/balance", handlers.GetCurrentBalanceHandler)
-		r.Get("/withdrawals", handlers.GetWithdrawalsHandler)
+		r.Post("/register", h.RegisterUserHandler)
+		r.Post("/login", h.AuthUserHandler)
+		r.Post("/orders", h.UploadNumberOrderHandler)
+		r.Post("/balance/withdraw", h.WithdrawPointsHandler)
+		r.Get("/orders", h.GetInfoHandler)
+		r.Get("/balance", h.GetCurrentBalanceHandler)
+		r.Get("/withdrawals", h.GetWithdrawalsHandler)
 	})
 	return r
 }

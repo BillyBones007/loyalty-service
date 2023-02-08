@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/BillyBones007/loyalty-service/internal/db"
+	"github.com/BillyBones007/loyalty-service/internal/db/postgres"
 	"github.com/BillyBones007/loyalty-service/internal/transport/router"
 	"github.com/go-chi/chi/v5"
 )
 
 type Server struct {
 	Config     *Config
-	Storage    *db.Storage
+	Storage    db.Store
 	Routers    *chi.Mux
 	HTTPServer *http.Server
 }
@@ -18,8 +19,8 @@ type Server struct {
 func NewServer() *Server {
 	server := Server{}
 	server.Config = initConfig()
-	server.Storage = db.InitStorage(server.Config.AddrDB)
-	server.Routers = router.InitRouter()
+	server.Storage = postgres.InitStorage(server.Config.AddrDB)
+	server.Routers = router.InitRouter(server.Storage)
 	server.HTTPServer = initHTTPServer(server.Config.AddrServ, server.Routers)
 	return &server
 }

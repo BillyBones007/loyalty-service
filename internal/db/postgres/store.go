@@ -1,9 +1,10 @@
-package db
+package postgres
 
 import (
 	"context"
 	"log"
 
+	"github.com/BillyBones007/loyalty-service/internal/db"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -12,8 +13,10 @@ import (
 )
 
 type Storage struct {
-	Pool     *pgxpool.Pool
-	ConfigDB *pgxpool.Config
+	Pool            *pgxpool.Pool
+	ConfigDB        *pgxpool.Config
+	UserRepository  *UserRepository
+	OrderRepository *OrderRepository
 }
 
 // Return struct with connections pool and config Postgres
@@ -26,13 +29,13 @@ func InitStorage(dst string) *Storage {
 	if err != nil {
 		log.Fatal(err)
 	}
-	stor := Storage{Pool: pool, ConfigDB: config}
-	stor.createTables()
-	return &stor
+	store := Storage{Pool: pool, ConfigDB: config}
+	store.CreateTables()
+	return &store
 }
 
 // Migrations. Creates tables in the database if they do not exist.
-func (s *Storage) createTables() error {
+func (s *Storage) CreateTables() error {
 	m, err := migrate.New("file://migrations/postgres", s.ConfigDB.ConnString())
 	if err != nil {
 		log.Fatal(err)
@@ -49,4 +52,22 @@ func (s *Storage) createTables() error {
 // Close the connections pool
 func (s *Storage) Close() {
 	s.Pool.Close()
+}
+
+// Get access to UserReposytory
+func (s *Storage) User() db.UniversalUserRepository {
+	if s.UserRepository != nil {
+		return s.UserRepository
+	}
+	s.UserRepository = &UserRepository{store: s}
+	return s.UserRepository
+}
+
+// Get acces to OrderRepository
+func (s *Storage) Order() db.UniversalOrderRepository {
+	if s.OrderRepository != nil {
+		return s.OrderRepository
+	}
+	s.OrderRepository = &OrderRepository{store: s}
+	return s.OrderRepository
 }

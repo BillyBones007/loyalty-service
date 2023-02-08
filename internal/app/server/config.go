@@ -46,7 +46,7 @@ func initConfig() *Config {
 	if conf.SecretKey == "" {
 		// At the time of development, the secret key is specified manually
 		// log.Fatal(errSecretKey)
-		conf.SecretKey = "secret"
+		conf.SecretKey = "this is secret key"
 	}
 	if conf.AddrDB == "" {
 		if flags.dbAddr == "" {
