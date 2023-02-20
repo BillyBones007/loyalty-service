@@ -63,7 +63,7 @@ func (s *Storage) User() db.UniversalUserRepository {
 	return s.UserRepository
 }
 
-// Get acces to OrderRepository
+// Get access to OrderRepository
 func (s *Storage) Order() db.UniversalOrderRepository {
 	if s.OrderRepository != nil {
 		return s.OrderRepository

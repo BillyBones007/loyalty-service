@@ -35,6 +35,7 @@ func (u *User) ComparePassword() bool {
 	return bcrypt.CompareHashAndPassword([]byte(u.EncryptedPassword), []byte(u.Password)) == nil
 }
 
+// Clear password field
 func (u *User) Sanitize() {
 	u.Password = ""
 }

@@ -9,4 +9,12 @@ type UniversalUserRepository interface {
 }
 
 type UniversalOrderRepository interface {
+	CheckOrder(order string) (uuid string)
+	InsertNewOrder(model models.OrderInfo, uuid any) error
+	UpdateOrder(model models.OrderInfo, uuid any) error
+	GetCurrentBalance(model *models.CurrentBalance, uuid any) error
+	GetOrdersInfo(uuid any) ([]models.ListOrdersInfo, error)
+	GetWithdrawalsInfo(uuid any) ([]models.Withdrawals, error)
+	WithdrawalPoints(model models.BalanceWithdraw, uuid any) error
+	UnprocessedOrders() ([]models.UnprocessedOrder, error)
 }

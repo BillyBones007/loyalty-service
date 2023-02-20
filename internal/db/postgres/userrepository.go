@@ -7,7 +7,7 @@ import (
 
 	"github.com/BillyBones007/loyalty-service/internal/customerr"
 	"github.com/BillyBones007/loyalty-service/internal/db/models"
-	"github.com/BillyBones007/loyalty-service/internal/tools/uuidconvertation"
+	"github.com/BillyBones007/loyalty-service/internal/tools/convert"
 )
 
 // Repository for work to user
@@ -21,11 +21,27 @@ func (u *UserRepository) Create(model *models.User) error {
 	if err := model.EncryptPassword(); err != nil {
 		return err
 	}
-	q := "INSERT INTO users (uuid, login, encrypted_password) VALUES (uuid_generate_v4(), $1, $2) RETURNING uuid;"
-	if err := u.store.Pool.QueryRow(context.Background(), q, model.Login, model.EncryptedPassword).Scan(&model.UUID); err != nil {
-		log.Printf("error in insert query: %s\n", err)
+	tx, err := u.store.Pool.Begin(context.TODO())
+	if err != nil {
 		return err
 	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(context.TODO())
+		}
+		tx.Commit(context.TODO())
+	}()
+	qUsers := "INSERT INTO users (uuid, login, encrypted_password) VALUES (uuid_generate_v4(), $1, $2) RETURNING uuid;"
+	if err := tx.QueryRow(context.Background(), qUsers, model.Login, model.EncryptedPassword).Scan(&model.UUID); err != nil {
+		log.Printf("error from Create function: %s\n", err)
+		return err
+	}
+	qBalace := "INSERT INTO balance (user_id) VALUES ($1);"
+	_, err = tx.Exec(context.Background(), qBalace, model.UUID)
+	if err != nil {
+		log.Printf("error from Create function: %s\n", err)
+	}
+
 	return nil
 }
 
@@ -51,7 +67,7 @@ func (u *UserRepository) FindByLogin(model *models.User) error {
 		}
 		return err
 	}
-	model.UUID = uuidconvertation.UUID(uuid).String()
+	model.UUID = convert.UUID(uuid).String()
 	model.EncryptedPassword = encrPass
 	return nil
 }

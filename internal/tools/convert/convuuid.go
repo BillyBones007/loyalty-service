@@ -1,4 +1,4 @@
-package uuidconvertation
+package convert
 
 import "encoding/hex"
 
