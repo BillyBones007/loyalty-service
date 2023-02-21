@@ -4,6 +4,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -123,6 +124,7 @@ func (h *Handler) UploadNumberOrderHandler(rw http.ResponseWriter, r *http.Reque
 	}
 	id := h.Storage.Order().CheckOrder(numOrder)
 	if id != "" {
+		fmt.Printf("Полученный id: %v\nID из куки:%v\n", id, userID)
 		if id == userID {
 			rw.WriteHeader(http.StatusOK)
 			return
