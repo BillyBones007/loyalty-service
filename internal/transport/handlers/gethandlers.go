@@ -43,7 +43,7 @@ func (h *Handler) GetOrdersInfoHandler(rw http.ResponseWriter, r *http.Request) 
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("Response: %v\n", resp)
+	fmt.Printf("Response: %s\n", resp)
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	rw.WriteHeader(http.StatusOK)
 	rw.Write(resp)
