@@ -131,7 +131,7 @@ func (o *OrderRepository) WithdrawalPoints(model models.BalanceWithdraw, uuid an
 func (o *OrderRepository) GetOrdersInfo(uuid any) ([]models.ListOrdersInfo, error) {
 	listOrders := make([]models.ListOrdersInfo, 0)
 	q := `SELECT num_order, status, debet_points, time_order FROM orders 
-	WHERE user_id = $1 ORDER BY time_order;`
+	WHERE user_id = $1 ORDER BY time_order DESC;`
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	rows, err := o.store.Pool.Query(ctx, q, uuid)

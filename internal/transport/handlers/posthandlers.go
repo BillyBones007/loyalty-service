@@ -4,7 +4,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -55,7 +54,6 @@ func (h *Handler) RegisterUserHandler(rw http.ResponseWriter, r *http.Request) {
 		Name:  "token",
 		Value: tokenStr,
 	}
-	fmt.Printf("ID: %v\n", user.UUID)
 	http.SetCookie(rw, cookie)
 	rw.WriteHeader(http.StatusOK)
 }
@@ -112,9 +110,6 @@ func (h *Handler) UploadNumberOrderHandler(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 	userID := token.ClaimsToken["user"]
-
-	fmt.Printf("ID: %v\n", userID)
-
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -122,16 +117,12 @@ func (h *Handler) UploadNumberOrderHandler(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 	numOrder := string(body)
-
-	fmt.Printf("Number order: %s\n", numOrder)
-
 	if !luhn.LuhnValid(numOrder) {
 		http.Error(rw, customerr.ErrInvalidNumOrder.Error(), http.StatusUnprocessableEntity)
 		return
 	}
 	id := h.Storage.Order().CheckOrder(numOrder)
 	if id != "" {
-		fmt.Printf("Полученный id: %v\nID из куки:%v\n", id, userID)
 		if id == userID {
 			rw.WriteHeader(http.StatusOK)
 			return
@@ -156,9 +147,6 @@ func (h *Handler) WithdrawPointsHandler(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 	userID := token.ClaimsToken["user"]
-
-	fmt.Printf("ID: %v\n", userID)
-
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {

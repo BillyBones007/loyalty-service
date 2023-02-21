@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/BillyBones007/loyalty-service/internal/customerr"
 	"github.com/BillyBones007/loyalty-service/internal/db/models"
 	"github.com/BillyBones007/loyalty-service/internal/tools/convert"
 	"github.com/BillyBones007/loyalty-service/internal/tools/jwttoken"
@@ -26,11 +27,12 @@ func (h *Handler) GetOrdersInfoHandler(rw http.ResponseWriter, r *http.Request) 
 	}
 	userID := token.ClaimsToken["user"]
 
-	fmt.Printf("ID: %v\n", userID)
-
 	listOrders, err := h.Storage.Order().GetOrdersInfo(userID)
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusNoContent)
+	if len(listOrders) == 0 {
+		http.Error(rw, customerr.ErrNoRows.Error(), http.StatusNoContent)
+		return
+	} else if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	listOrders = convert.TimeInRC3339ForListOrders(listOrders)
