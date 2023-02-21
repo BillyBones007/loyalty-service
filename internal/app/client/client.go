@@ -12,6 +12,7 @@ import (
 	"github.com/BillyBones007/loyalty-service/internal/customerr"
 	"github.com/BillyBones007/loyalty-service/internal/db"
 	"github.com/BillyBones007/loyalty-service/internal/db/models"
+	"github.com/BillyBones007/loyalty-service/internal/tools/convert"
 )
 
 // Client
@@ -28,55 +29,40 @@ func NewAccrualClient(storage db.Store, addrAccrual string) *AccrualClient {
 
 // Run client
 func (c *AccrualClient) Run() {
+	ticker := time.NewTicker(3 * time.Second)
+	defer ticker.Stop()
 	errCh := make(chan struct{})
 	stopCh := make(chan struct{})
 	orders := make(chan models.UnprocessedOrder, 50)
-	results := make(chan models.OrderInfo, 10)
+	results := make(chan models.OrderInfo)
 
 	for i := 0; i < cap(orders); i++ {
 		go c.WorkerOrderInfo(orders, results, errCh, stopCh)
 	}
 
-	for i := 0; i < cap(results); i++ {
-		go c.UpdateOrder(results)
-	}
-
-	go c.CheckUnprocessedOrders(orders)
-
 	for {
 		select {
 		case <-errCh:
 			stopCh <- struct{}{}
+		case <-ticker.C:
+			c.CheckUnprocessedOrders(orders)
 		}
+
 	}
 }
 
 // Check unprocessed orders
 func (c *AccrualClient) CheckUnprocessedOrders(orders chan models.UnprocessedOrder) {
-	for {
-		listOrders, err := c.Storage.Order().UnprocessedOrders()
-		if err != nil {
-			if errors.Is(err, customerr.ErrNoRows) {
-				time.Sleep(5 * time.Second)
-				continue
-			}
-			fmt.Printf("error from client: %s\n", err)
-			time.Sleep(5 * time.Second)
-			continue
+	listOrders, err := c.Storage.Order().UnprocessedOrders()
+	if err != nil {
+		if errors.Is(err, customerr.ErrNoRows) {
+			return
 		}
-		for _, order := range listOrders {
-			orders <- order
-		}
-
+		fmt.Printf("error from client: %s\n", err)
+		return
 	}
-
-}
-
-// Update order and current balance in database
-func (c *AccrualClient) UpdateOrder(orderInfo chan models.OrderInfo) {
-	for order := range orderInfo {
-		c.Storage.Order().UpdateOrder(order, order.UUID)
-
+	for _, order := range listOrders {
+		orders <- order
 	}
 }
 
@@ -109,7 +95,7 @@ func (c *AccrualClient) WorkerOrderInfo(orderCh chan models.UnprocessedOrder, re
 
 			} else if sCode == http.StatusNoContent {
 				orderInfo := models.OrderInfo{Order: order.Order, Status: models.Invalid, UUID: order.UUID}
-				resCh <- orderInfo
+				c.Storage.Order().UpdateOrder(orderInfo, orderInfo.UUID)
 				continue
 
 			} else if sCode == http.StatusInternalServerError {
@@ -129,7 +115,8 @@ func (c *AccrualClient) WorkerOrderInfo(orderCh chan models.UnprocessedOrder, re
 					continue
 				}
 				if orderInfo.Accrual != 0 {
-					resCh <- orderInfo
+					orderInfo.IntAccrual = convert.ConvToIntBalance(orderInfo.Accrual)
+					c.Storage.Order().UpdateOrder(orderInfo, orderInfo.UUID)
 				}
 			}
 		}

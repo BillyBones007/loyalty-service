@@ -17,7 +17,7 @@ type ListOrdersInfo struct {
 	Number     string    `json:"numder"`
 	Status     string    `json:"status"`
 	Accrual    float64   `json:"accrual,omitempty"`
-	IntAccrual int       `json:"-"`
+	IntAccrual int64     `json:"-"`
 	TimeOrder  time.Time `json:"-"`
 	Uploaded   string    `json:"uploaded_at"`
 }
@@ -26,22 +26,22 @@ type ListOrdersInfo struct {
 type CurrentBalance struct {
 	Current      float64 `json:"current"`
 	Withdrawn    float64 `json:"withdrawn"`
-	IntCurrent   int     `json:"-"`
-	IntWithdrawn int     `json:"-"`
+	IntCurrent   int64   `json:"-"`
+	IntWithdrawn int64   `json:"-"`
 }
 
 // Model withdrawal points
 type BalanceWithdraw struct {
 	Order  string  `json:"order"`
 	Sum    float64 `json:"sum"`
-	IntSum int     `json:"-"`
+	IntSum int64   `json:"-"`
 }
 
 // Model withdrawals
 type Withdrawals struct {
 	Order     string    `json:"order"`
 	Sum       float64   `json:"sum"`
-	IntSum    int       `json:"-"`
+	IntSum    int64     `json:"-"`
 	TimeOrder time.Time `json:"-"`
 	Processed string    `json:"processed_at"`
 }
@@ -51,7 +51,7 @@ type OrderInfo struct {
 	Order      string  `json:"order"`
 	Status     string  `json:"status"`
 	Accrual    float64 `json:"accrual,omitempty"`
-	IntAccrual int     `json:"-"`
+	IntAccrual int64   `json:"-"`
 	UUID       string  `json:"-"`
 }
 

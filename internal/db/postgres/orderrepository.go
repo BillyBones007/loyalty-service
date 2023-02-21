@@ -60,12 +60,12 @@ func (o *OrderRepository) UpdateOrder(model models.OrderInfo, uuid any) error {
 		tx.Commit(context.TODO())
 	}()
 
-	_, err = tx.Exec(context.TODO(), updateOrder, model.Status, model.Accrual, model.Order)
+	_, err = tx.Exec(context.TODO(), updateOrder, model.Status, model.IntAccrual, model.Order)
 	if err != nil {
 		log.Printf("error insert order: %s\n", err)
 		return err
 	}
-	_, err = tx.Exec(context.TODO(), updateBalance, model.Accrual, uuid)
+	_, err = tx.Exec(context.TODO(), updateBalance, model.IntAccrual, uuid)
 	if err != nil {
 		log.Printf("error update balance: %s\n", err)
 		return err
@@ -76,10 +76,14 @@ func (o *OrderRepository) UpdateOrder(model models.OrderInfo, uuid any) error {
 // Get the current balance for user
 func (o *OrderRepository) GetCurrentBalance(model *models.CurrentBalance, uuid any) error {
 	q := `SELECT balance, withdraw FROM balance WHERE user_id = $1;`
-	if err := o.store.Pool.QueryRow(context.TODO(), q, uuid).Scan(model.IntCurrent, model.IntWithdrawn); err != nil {
+	var curr int64
+	var withdraw int64
+	if err := o.store.Pool.QueryRow(context.TODO(), q, uuid).Scan(&curr, &withdraw); err != nil {
 		log.Printf("error get current balance: %s\n", err)
 		return err
 	}
+	model.IntCurrent = curr
+	model.IntWithdrawn = withdraw
 	return nil
 }
 
@@ -90,7 +94,7 @@ func (o *OrderRepository) WithdrawalPoints(model models.BalanceWithdraw, uuid an
 	VALUES ($1, $2, $3, $4, $5);`
 	updateWithdrawQuery := `UPDATE balance SET withdraw = withdraw + $1, balance = balance - $1 
 	WHERE user_id = $2;`
-	var currBalance int
+	var currBalance int64
 	tx, err := o.store.Pool.Begin(context.TODO())
 	if err != nil {
 		return err
