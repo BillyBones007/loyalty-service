@@ -14,7 +14,7 @@ const (
 
 // Model for list orders information
 type ListOrdersInfo struct {
-	Number     string    `json:"numder"`
+	Number     string    `json:"number"`
 	Status     string    `json:"status"`
 	Accrual    float64   `json:"accrual,omitempty"`
 	IntAccrual int64     `json:"-"`
