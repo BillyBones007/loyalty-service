@@ -21,9 +21,11 @@ func (o *OrderRepository) CheckOrder(order string) (uuid string) {
 	q := "SELECT user_id FROM orders WHERE EXISTS(SELECT * FROM orders WHERE num_order = $1);"
 	if err := o.store.Pool.QueryRow(context.TODO(), q, order).Scan(&id); err != nil {
 		if errors.Is(err, customerr.ErrNoRows) {
+			uuid = ""
 			return uuid
 		}
 		log.Printf("error in function CheckOrder: %s\n", err)
+		uuid = ""
 		return uuid
 	}
 	uuid = convert.UUID(id).String()
