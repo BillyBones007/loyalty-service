@@ -3,6 +3,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/BillyBones007/loyalty-service/internal/db/models"
@@ -24,6 +25,9 @@ func (h *Handler) GetOrdersInfoHandler(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 	userID := token.ClaimsToken["user"]
+
+	fmt.Printf("ID: %v\n", userID)
+
 	listOrders, err := h.Storage.Order().GetOrdersInfo(userID)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusNoContent)
@@ -48,6 +52,9 @@ func (h *Handler) GetCurrentBalanceHandler(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 	userID := token.ClaimsToken["user"]
+
+	fmt.Printf("ID: %v\n", userID)
+
 	currBalance := models.CurrentBalance{}
 	err := h.Storage.Order().GetCurrentBalance(&currBalance, userID)
 	if err != nil {
@@ -75,6 +82,9 @@ func (h *Handler) GetWithdrawalsHandler(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 	userID := token.ClaimsToken["user"]
+
+	fmt.Printf("ID: %v\n", userID)
+
 	listWithdrawals, err := h.Storage.Order().GetWithdrawalsInfo(userID)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusNoContent)

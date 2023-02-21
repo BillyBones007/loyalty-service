@@ -55,6 +55,7 @@ func (h *Handler) RegisterUserHandler(rw http.ResponseWriter, r *http.Request) {
 		Name:  "token",
 		Value: tokenStr,
 	}
+	fmt.Printf("ID: %v\n", user.UUID)
 	http.SetCookie(rw, cookie)
 	rw.WriteHeader(http.StatusOK)
 }
@@ -111,6 +112,9 @@ func (h *Handler) UploadNumberOrderHandler(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 	userID := token.ClaimsToken["user"]
+
+	fmt.Printf("ID: %v\n", userID)
+
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -149,6 +153,9 @@ func (h *Handler) WithdrawPointsHandler(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 	userID := token.ClaimsToken["user"]
+
+	fmt.Printf("ID: %v\n", userID)
+
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
