@@ -122,6 +122,9 @@ func (h *Handler) UploadNumberOrderHandler(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 	numOrder := string(body)
+
+	fmt.Printf("Number order: %s\n", numOrder)
+
 	if !luhn.LuhnValid(numOrder) {
 		http.Error(rw, customerr.ErrInvalidNumOrder.Error(), http.StatusUnprocessableEntity)
 		return
