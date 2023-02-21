@@ -37,13 +37,3 @@ func checksum(number int) int {
 	}
 	return luhn % 10
 }
-
-// CalculateLuhn return the check number
-// func calculateLuhn(number int) int {
-// 	checkNumber := checksum(number)
-
-// 	if checkNumber == 0 {
-// 		return 0
-// 	}
-// 	return 10 - checkNumber
-// }
