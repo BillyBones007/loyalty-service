@@ -28,6 +28,8 @@ func (h *Handler) GetOrdersInfoHandler(rw http.ResponseWriter, r *http.Request) 
 	userID := token.ClaimsToken["user"]
 
 	listOrders, err := h.Storage.Order().GetOrdersInfo(userID)
+	fmt.Printf("User ID: %v\n", userID)
+	fmt.Printf("List Orders: %v\n", listOrders)
 	if len(listOrders) == 0 {
 		http.Error(rw, customerr.ErrNoRows.Error(), http.StatusNoContent)
 		return
@@ -54,8 +56,6 @@ func (h *Handler) GetCurrentBalanceHandler(rw http.ResponseWriter, r *http.Reque
 		return
 	}
 	userID := token.ClaimsToken["user"]
-
-	fmt.Printf("ID: %v\n", userID)
 
 	currBalance := models.CurrentBalance{}
 	err := h.Storage.Order().GetCurrentBalance(&currBalance, userID)
