@@ -105,6 +105,7 @@ func (c *AccrualClient) WorkerOrderInfo(orderCh chan models.UnprocessedOrder, re
 				body, err := io.ReadAll(resp.Body)
 				if err != nil {
 					log.Printf("error from worker: %s\n", err)
+					resp.Body.Close()
 					continue
 				}
 				resp.Body.Close()
